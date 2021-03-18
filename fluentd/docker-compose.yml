@@ -1,7 +1,7 @@
 version: '3.8'
 
 networks:
-  cluster:
+  halb-cluster:
     external: true
 
 services:
@@ -15,7 +15,7 @@ services:
       - ./fluent.conf:/fluentd/etc/fluent.conf
       - ./log:/fluentd/log
     networks:
-      - cluster
+      - halb-cluster
     ports:
       - 24224:24224
       - 24224:24224/udp

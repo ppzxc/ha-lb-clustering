@@ -1,7 +1,7 @@
 version: '3.8'
 
 networks:
-  cluster:
+  halb-cluster:
     external: true
     
 
@@ -47,7 +47,7 @@ services:
       REMOTE: ${RABBITMQ_REMOTE_HOST_NAME}
     restart: always
     networks:
-      - cluster
+      - halb-cluster
     ports:
       - 8080:8080
       - 5673:5673

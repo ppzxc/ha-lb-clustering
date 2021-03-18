@@ -1,4 +1,9 @@
 #!/bin/bash
+export $(cat ./default.env)
+
+if [ $(docker network ls | grep halb-cluster | wc -l) -eq 0 ];then
+	docker network create halb-cluster
+fi
 
 cd ./fluentd
 make d

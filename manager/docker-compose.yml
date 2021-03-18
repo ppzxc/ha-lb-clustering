@@ -1,13 +1,13 @@
 version: '3.8'
 
 networks:
-  cluster:
+  halb-cluster:
     external: true
 
 x-defaults: &defaults
   restart: always
   networks:
-    - cluster
+    - halb-cluster
 
 x-logging: &logging
   logging:
