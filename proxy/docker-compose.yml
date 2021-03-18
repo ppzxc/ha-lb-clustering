@@ -1,0 +1,53 @@
+version: '3.8'
+
+networks:
+  cluster:
+    external: true
+    
+
+x-logging: &logging
+  logging:
+    driver: "fluentd"
+    options:
+      fluentd-address: localhost:24224
+
+services:
+  keepalived:
+    <<: *logging
+    hostname: ${CLUSTER_NAME}-keepalived
+    container_name: ${CLUSTER_NAME}-keepalived
+    image: osixia/keepalived:2.0.20
+    restart: always
+    cap_add:
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+    environment:
+      KEEPALIVED_COMMAND_LINE_ARGUMENTS: >-
+        --log-detail
+        #-–dont-release-vrrp
+        #-–dont-release-ipvs
+        #--dump-conf
+    network_mode: host
+    restart: always
+    volumes:
+      - ./keepalived.conf:/usr/local/etc/keepalived/keepalived.conf:ro
+
+  haproxy:
+    <<: *logging
+    image: haproxy:2.3.7
+    hostname: ${CLUSTER_NAME}-haproxy
+    container_name: ${CLUSTER_NAME}-haproxy
+    extra_hosts:
+      - ${RABBITMQ_REMOTE_HOST_NAME}:${RABBITMQ_REMOTE_HOST_IP}
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    environment:
+      LOCAL: ${RABBITMQ_CONTAINER_NAME}
+      REMOTE: ${RABBITMQ_REMOTE_HOST_NAME}
+    restart: always
+    networks:
+      - cluster
+    ports:
+      - 8080:8080
+      - 5673:5673

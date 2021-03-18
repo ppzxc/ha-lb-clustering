@@ -1,0 +1,41 @@
+version: "3.8"
+
+networks:
+  cluster:
+    external: true
+
+x-defaults: &defaults
+  restart: always
+  networks:
+    - cluster
+
+x-logging: &logging
+  logging:
+    driver: "fluentd"
+    options:
+      fluentd-address: localhost:24224
+
+services:
+  rabbit:
+    <<: *logging
+    <<: *defaults
+    image: rabbitmq:3.8.14-management-alpine
+    hostname: ${RABBITMQ_CONTAINER_NAME}
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    extra_hosts:
+      - ${RABBITMQ_REMOTE_HOST_NAME}:${RABBITMQ_REMOTE_HOST_IP}
+    environment:
+      LOCAL_DOMAIN: ${RABBITMQ_CONTAINER_NAME}
+      REMOTE_DOMAIN: ${RABBITMQ_REMOTE_HOST_NAME}
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./definitions.json:/etc/rabbitmq/definitions.json
+      - ./erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+    ports:
+      - 4369:4369
+      - 5672:5672
+      - 15672:15672
+      - 15692:15692
+      - 25672:25672
+

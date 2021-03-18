@@ -1,0 +1,21 @@
+version: '3.8'
+
+networks:
+  cluster:
+    external: true
+
+services:
+  fluentd:
+    image: fluentd:v1.9.1-debian-1.0
+    hostname: ${CLUSTER_NAME}-fluentd
+    container_name: ${CLUSTER_NAME}-fluentd
+    restart: always
+    user: root
+    volumes:
+      - ./fluent.conf:/fluentd/etc/fluent.conf
+      - ./log:/fluentd/log
+    networks:
+      - cluster
+    ports:
+      - 24224:24224
+      - 24224:24224/udp

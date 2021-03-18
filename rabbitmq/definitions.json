@@ -1,0 +1,15 @@
+{
+  "policies": [
+    {
+      "vhost": "/",
+      "durable": true,
+      "name": "ha-all",
+      "pattern": "",
+      "apply-to": "all",
+      "definition": {
+        "ha-mode": "all"
+      },
+      "priority": 0
+    }
+  ]
+}

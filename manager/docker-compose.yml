@@ -1,0 +1,61 @@
+version: '3.8'
+
+networks:
+  cluster:
+    external: true
+
+x-defaults: &defaults
+  restart: always
+  networks:
+    - cluster
+
+x-logging: &logging
+  logging:
+    driver: "fluentd"
+    options:
+      fluentd-address: localhost:24224
+
+services:
+  node-exporter:
+    <<: *logging
+    <<: *defaults
+    image: prom/node-exporter:latest
+    hostname: ${CLUSTER_NAME}-node-exporter
+    container_name: ${CLUSTER_NAME}-node-exporter
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - 9100:9100
+
+  haproxy_exporter:
+    <<: *logging
+    <<: *defaults
+    image: quay.io/prometheus/haproxy-exporter:v0.12.0
+    hostname: ${CLUSTER_NAME}-haproxy-exporter
+    container_name: ${CLUSTER_NAME}-haproxy-exporter
+    command:
+      - --haproxy.scrape-uri=http://nanoit:admin@${CLUSTER_NAME}-haproxy:8080/stats?stats;csv
+    ports:
+      - 9101:9101
+
+  cadvisor:
+    <<: *logging
+    <<: *defaults
+    image: google/cadvisor:latest
+    hostname: ${CLUSTER_NAME}-cadvisor
+    container_name: ${CLUSTER_NAME}-cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro
+    ports:
+      - 8070:8080
