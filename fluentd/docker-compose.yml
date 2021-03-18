@@ -11,6 +11,8 @@ services:
     container_name: ${CLUSTER_NAME}-fluentd
     restart: always
     user: root
+    environment:
+      - TZ=Asia/Seoul
     volumes:
       - ./fluent.conf:/fluentd/etc/fluent.conf
       - ./log:/fluentd/log

@@ -23,6 +23,7 @@ services:
       - NET_BROADCAST
       - NET_RAW
     environment:
+      TZ: Asia/Seoul
       KEEPALIVED_COMMAND_LINE_ARGUMENTS: >-
         --log-detail
         #-–dont-release-vrrp
@@ -45,6 +46,7 @@ services:
     environment:
       LOCAL: ${RABBITMQ_CONTAINER_NAME}
       REMOTE: ${RABBITMQ_REMOTE_HOST_NAME}
+      TZ: Asia/Seoul
     restart: always
     networks:
       - halb-cluster

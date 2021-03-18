@@ -25,6 +25,7 @@ services:
     extra_hosts:
       - ${RABBITMQ_REMOTE_HOST_NAME}:${RABBITMQ_REMOTE_HOST_IP}
     environment:
+      TZ: Asia/Seoul
       LOCAL_DOMAIN: ${RABBITMQ_CONTAINER_NAME}
       REMOTE_DOMAIN: ${RABBITMQ_REMOTE_HOST_NAME}
     volumes:

@@ -5,6 +5,8 @@ networks:
     external: true
 
 x-defaults: &defaults
+  environment:
+    - TZ=Asia/Seoul
   restart: always
   networks:
     - halb-cluster
