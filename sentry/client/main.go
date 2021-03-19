@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"time"
 
 	"github.com/getsentry/raven-go"
@@ -10,7 +11,11 @@ import (
 )
 
 func main() {
-	if err := raven.SetDSN("http://8365445c88bd478082113e83a465e847@monitor.nanoit.kr/7"); err != nil {
+	dsn := flag.String("-dsn", "", "sentry DSN")
+	ip := flag.String("-syslog.ip", "0.0.0.0", "syslog received server ip")
+	port := flag.String("-syslog.port", "5141", "syslog received server ip")
+	flag.Parse()
+	if err := raven.SetDSN(*dsn); err != nil {
 		panic(err)
 	}
 
@@ -21,7 +26,7 @@ func main() {
 	server.SetFormat(sys.Automatic)
 	server.SetHandler(handler)
 	server.SetFormat(sys.Automatic)
-	server.ListenUDP("0.0.0.0:5141")
+	server.ListenUDP(*ip + ":" + *port)
 	server.Boot()
 
 	go func(channel sys.LogPartsChannel) {
@@ -59,12 +64,12 @@ func send(syslog Syslog) {
 				},
 			},
 		}
-		// logrus.Warnf("%+#v\r\n", syslog)
+		logrus.Warnf("%+#v\r\n", syslog)
 		eid, err := raven.Capture(packet, nil)
 		select {
 		case e := <-err:
 			if err != nil {
-			 	logrus.Error(eid, e)
+				logrus.Error(eid, e)
 			}
 		}
 	}
@@ -89,12 +94,12 @@ func send(syslog Syslog) {
 				},
 			},
 		}
-		// logrus.Errorf("%+#v\r\n", syslog)
+		logrus.Errorf("%+#v\r\n", syslog)
 		eid, err := raven.Capture(packet, nil)
 		select {
 		case e := <-err:
 			if err != nil {
-			 	logrus.Error(eid, e)
+				logrus.Error(eid, e)
 			}
 		}
 	}
