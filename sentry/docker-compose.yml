@@ -1,0 +1,17 @@
+version: '3.8'
+
+networks:
+  halb-cluster:
+    external: true
+
+services:
+  sentry-client:
+    build: .
+    hostname: ${CLUSTER_NAME}-sentry-client
+    container_name: ${CLUSTER_NAME}-sentry-client
+    environment:
+      DSN: ${DSN_URL}
+    ports:
+      - 5141:5141/udp
+    networks:
+      - halb-cluster

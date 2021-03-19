@@ -3,17 +3,9 @@ version: '3.8'
 networks:
   halb-cluster:
     external: true
-    
-
-x-logging: &logging
-  logging:
-    driver: "fluentd"
-    options:
-      fluentd-address: localhost:24224
 
 services:
   keepalived:
-    <<: *logging
     hostname: ${CLUSTER_NAME}-keepalived
     container_name: ${CLUSTER_NAME}-keepalived
     image: osixia/keepalived:2.0.20
@@ -33,9 +25,16 @@ services:
     restart: always
     volumes:
       - ./keepalived.conf:/usr/local/etc/keepalived/keepalived.conf:ro
+    logging:
+      driver: syslog
+      options:
+        syslog-address: udp://127.0.0.1:514
+        syslog-format: ${SYSLOG_FORMAT}
+        syslog-facility: daemon
+        tag: ${LOCAL_IP}-keepalived
+
 
   haproxy:
-    <<: *logging
     image: haproxy:2.3.7
     hostname: ${CLUSTER_NAME}-haproxy
     container_name: ${CLUSTER_NAME}-haproxy
@@ -53,3 +52,10 @@ services:
     ports:
       - 8080:8080
       - 5673:5673
+    logging:
+      driver: syslog
+      options:
+        syslog-address: udp://127.0.0.1:514
+        syslog-format: ${SYSLOG_FORMAT}
+        syslog-facility: daemon
+        tag: ${LOCAL_IP}-haproxy

@@ -9,15 +9,8 @@ x-defaults: &defaults
   networks:
     - halb-cluster
 
-x-logging: &logging
-  logging:
-    driver: "fluentd"
-    options:
-      fluentd-address: localhost:24224
-
 services:
   rabbit:
-    <<: *logging
     <<: *defaults
     image: rabbitmq:3.8.14-management-alpine
     hostname: ${RABBITMQ_CONTAINER_NAME}
@@ -33,10 +26,23 @@ services:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./definitions.json:/etc/rabbitmq/definitions.json
       - ./erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     ports:
       - 4369:4369
       - 5672:5672
       - 15672:15672
       - 15692:15692
       - 25672:25672
-
+#    logging:
+#      driver: fluentd
+#      options:
+#        fluentd-address: localhost:24224
+#        tag: docker.{{.ID}}
+    logging:
+      driver: syslog
+      options:
+        syslog-address: udp://127.0.0.1:514
+        syslog-format: ${SYSLOG_FORMAT}
+        syslog-facility: daemon
+        tag: ${LOCAL_IP}-${RABBITMQ_CONTAINER_NAME}

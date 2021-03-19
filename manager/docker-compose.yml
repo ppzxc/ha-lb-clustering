@@ -11,15 +11,8 @@ x-defaults: &defaults
   networks:
     - halb-cluster
 
-x-logging: &logging
-  logging:
-    driver: "fluentd"
-    options:
-      fluentd-address: localhost:24224
-
 services:
   node-exporter:
-    <<: *logging
     <<: *defaults
     image: prom/node-exporter:latest
     hostname: ${CLUSTER_NAME}-node-exporter
@@ -35,9 +28,15 @@ services:
       - /:/rootfs:ro
     ports:
       - 9100:9100
+    logging:
+      driver: syslog
+      options:
+        syslog-address: udp://127.0.0.1:514
+        syslog-format: ${SYSLOG_FORMAT}
+        syslog-facility: daemon
+        tag: ${LOCAL_IP}-node-exporter
 
   haproxy_exporter:
-    <<: *logging
     <<: *defaults
     image: quay.io/prometheus/haproxy-exporter:v0.12.0
     hostname: ${CLUSTER_NAME}-haproxy-exporter
@@ -46,9 +45,15 @@ services:
       - --haproxy.scrape-uri=http://nanoit:admin@${CLUSTER_NAME}-haproxy:8080/stats?stats;csv
     ports:
       - 9101:9101
+    logging:
+      driver: syslog
+      options:
+        syslog-address: udp://127.0.0.1:514
+        syslog-format: ${SYSLOG_FORMAT}
+        syslog-facility: daemon
+        tag: ${LOCAL_IP}-haproxy-exporter
 
   cadvisor:
-    <<: *logging
     <<: *defaults
     image: google/cadvisor:latest
     hostname: ${CLUSTER_NAME}-cadvisor
@@ -61,3 +66,10 @@ services:
       - /cgroup:/cgroup:ro
     ports:
       - 8070:8080
+    logging:
+      driver: syslog
+      options:
+        syslog-address: udp://127.0.0.1:514
+        syslog-format: ${SYSLOG_FORMAT}
+        syslog-facility: daemon
+        tag: ${LOCAL_IP}-cadvisor
