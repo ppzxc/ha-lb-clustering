@@ -28,7 +28,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: udp://127.0.0.1:514
+        syslog-address: ${SYSLOG_ADDRESS}
         syslog-format: ${SYSLOG_FORMAT}
         syslog-facility: daemon
         tag: ${LOCAL_IP}-keepalived
@@ -55,7 +55,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: udp://127.0.0.1:514
+        syslog-address: ${SYSLOG_ADDRESS}
         syslog-format: ${SYSLOG_FORMAT}
         syslog-facility: daemon
         tag: ${LOCAL_IP}-haproxy

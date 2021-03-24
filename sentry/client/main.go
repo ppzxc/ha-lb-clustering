@@ -11,9 +11,9 @@ import (
 )
 
 func main() {
-	dsn := flag.String("-dsn", "", "sentry DSN")
-	ip := flag.String("-syslog.ip", "0.0.0.0", "syslog received server ip")
-	port := flag.String("-syslog.port", "5141", "syslog received server ip")
+	dsn := flag.String("dsn", "", "sentry DSN")
+	ip := flag.String("syslog.ip", "0.0.0.0", "syslog received server ip")
+	port := flag.String("syslog.port", "5141", "syslog received server ip")
 	flag.Parse()
 	if err := raven.SetDSN(*dsn); err != nil {
 		panic(err)
@@ -65,12 +65,12 @@ func send(syslog Syslog) {
 			},
 		}
 		logrus.Warnf("%+#v\r\n", syslog)
-		eid, err := raven.Capture(packet, nil)
+		_, err := raven.Capture(packet, nil)
 		select {
-		case e := <-err:
-			if err != nil {
-				logrus.Error(eid, e)
-			}
+		case <-err:
+			//if err != nil {
+			//	logrus.Error(eid, e)
+			//}
 		}
 	}
 	if syslog.Severity >= 5 {
@@ -95,12 +95,12 @@ func send(syslog Syslog) {
 			},
 		}
 		logrus.Errorf("%+#v\r\n", syslog)
-		eid, err := raven.Capture(packet, nil)
+		_, err := raven.Capture(packet, nil)
 		select {
-		case e := <-err:
-			if err != nil {
-				logrus.Error(eid, e)
-			}
+		case <-err:
+			//if err != nil {
+				//logrus.Error(eid, e)
+			//
 		}
 	}
 }
